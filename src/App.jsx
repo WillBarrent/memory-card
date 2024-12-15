@@ -11,26 +11,30 @@ function App() {
 
     try {
       if (!ignore) {
-        fetch(`https://pokeapi.co/api/v2/pokemon/?offset=20&limit=20`, {
-          mode: "cors",
-        })
-          .then((response) => response.json())
-          .then((data) => {
-            const results = data.results;
-            const resultImages = [];
-            for (let i = 0; i < 6; i++) {
-              fetch(results[i].url, { mode: "cors" })
-                .then((response) => response.json())
-                .then((data) => {
-                  resultImages.push({
-                    id: i,
-                    imageUrl:
-                      data.sprites.other["official-artwork"]["front_default"],
-                  });
-                  setImages(resultImages);
-                });
+        (async function () {
+          const response = await fetch(
+            `https://pokeapi.co/api/v2/pokemon/?offset=20&limit=20`,
+            {
+              mode: "cors",
             }
-          });
+          );
+          const data = await response.json();
+          const results = data.results;
+          const resultImages = [];
+
+          for (let i = 0; i < 6; i++) {
+            const response = await fetch(`${results[i].url}`, {
+              mode: "cors",
+            });
+            const data = await response.json();
+            resultImages.push({
+              id: i,
+              imageUrl: data.sprites.other["official-artwork"]["front_default"],
+            });
+          }
+
+          setImages(resultImages);
+        })();
       }
     } catch (e) {
       console.error(e.message);
